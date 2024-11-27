@@ -122,14 +122,6 @@ df_pivot = df5.pivot_table(
     fill_value=0,                           # Rellenar con 0 donde no haya datos
 )
 
-# Graficar la tabla dinámica
-ax = df_pivot.plot(kind='bar', stacked=True, figsize=(10, 6), colormap="Set3")
-
-# Títulos y etiquetas
-ax.set_title('Total de Expedientes por Tipo y Día', fontsize=14)
-ax.set_xlabel('Fecha', fontsize=12)
-ax.set_ylabel('Total de Expedientes', fontsize=12)
-ax.legend(title='Tipo de Expediente')
 
 
 
@@ -177,5 +169,4 @@ with col13:
     st.write("Listado Expedientes No Resueltos")
     st.dataframe(df_pivot)
 
-with col11:
-    st.plotly_chart(ax)    
+  
