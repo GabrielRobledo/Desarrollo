@@ -3,6 +3,8 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Parámetros de conexión
 server = 'IPSDB-Replica' 
@@ -53,7 +55,7 @@ st.title("Reporte Situacion Previsional IPS 15-11-2024 al 30-11-2024")
 
 
 # Crear gráfico interactivo
-fig = px.bar(df, x='Tipo Expedientes', y="Cantidad")
+fig = px.bar(df, x='Tipo Expedientes', y="Cantidad", text='Cantidad', text_auto=True)
 
 data2=[]
 
@@ -63,7 +65,7 @@ for fila in resultado2:
 df2 = pd.DataFrame(data2)
 
 # Crear gráfico interactivo
-fig2 = px.bar(df2, x='Sector Actual', y="Cantidad")
+fig2 = px.bar(df2, x='Sector Actual', y="Cantidad", text='Cantidad', text_auto=True, width= 900, height= 600)
 
 consulta3 = """select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad Solicitados' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios'  and [Fecha inicio] between '15-11-2024' AND '30-11-2024' group by [Tipo Expedientes]"""
 cursor.execute(consulta3)
@@ -93,8 +95,8 @@ for fila in resultados4:
 
 df4 = pd.DataFrame(data4)
 
-fig4 = px.bar(df4, x='Tipo Expedientes', y='Cantidades')
-
+fig4 = px.bar(df4, x='Tipo Expedientes', y='Cantidades', text='Cantidades', text_auto=True )
+fig4.update_xaxes(tickangle=35)
 
 consulta5 = """select CONVERT(DATE,[Fecha inicio]) 'Fecha incio', [Tipo Expedientes], Extracto from expedientes
 where ([Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios') and ([Fecha inicio] between '15-11-2024' AND '30-11-2024')"""
@@ -128,8 +130,29 @@ fig5 = px.bar(df_pivot,
              y=df_pivot.columns,  # Eje Y: los tipos de expediente
              title="Solicitudes por Día",
              labels={'Fecha Inicio': 'Fecha', 'value': 'Cantidad'},
-             height=600, 
+             height=600,
              barmode='stack')  # 'stack' para apilar las barras
+fig5.update_xaxes(tickangle=45)
+
+consulta6 = """select p.[Nro. Expedientes], [Tipo Expedientes], Sector,DATEDIFF(DAY, [Fecha inicio], MIN([Fecha ingreso])) as 'Dias P/Resolver'from pases as p inner join expedientes as e on p.[Nro. Expedientes] = e.[Nro. Expedientes] where Sector='Div. Despacho' and 
+([Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios') and ([Fecha inicio] between '01-09-2024' AND '30-11-2024') group by p.[Nro. Expedientes], [Tipo Expedientes], Sector, [Fecha inicio]"""
+cursor.execute(consulta6)
+resultados6 = cursor.fetchall()
+
+data6 = []
+dias=[]
+
+if resultados6:
+    for fila in resultados6:
+        # Agregar el registro a la lista 'data'
+        dias.append(fila[3])
+        data6.append({"Tipo Expedientes": fila[1], "Dias P/Resolver": fila[3]})
+
+df6 = pd.DataFrame(data6)
+
+tipos=df6['Tipo Expedientes'].unique()
+
+#promedios = [np.mean(dias[tipo]) for tipo in tipos]
 
 
 # Usar st.columns para colocar los gráficos en columnas
@@ -138,6 +161,7 @@ col4, col5, col6 = st.columns(3)
 col7, col8, col9 = st.columns(3)
 col10, col11, col12 = st.columns(3)
 col13, col14, col15 = st.columns(3)
+col16, col17, col18 = st.columns(3)
 
 # Mostrar los gráficos en las columnas
 with col1:
@@ -173,12 +197,13 @@ with col11:
 
 # Mostrar los gráficos en las columnas
 with col13:
-
     st.write("Cantidad de Expedientes por Tipo")
     st.dataframe(df)
-    
 
 with col14:
     st.plotly_chart(fig)
     
- 
+with col16:
+    st.write("Expedientes y sus dias para resolverse")
+    st.dataframe(df6) 
+
