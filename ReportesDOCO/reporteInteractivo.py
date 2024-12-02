@@ -2,7 +2,7 @@ import pyodbc
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 # Parámetros de conexión
 server = 'IPSDB-Replica' 
@@ -18,6 +18,8 @@ try:
         conn = pyodbc.connect(conn_str)
         print("Conexión exitosa")
 
+
+
 except Exception as e:
         print(f"Error de conexión: {e}")
     
@@ -27,12 +29,12 @@ cursor = conn.cursor()
 st.set_page_config(page_title="Mi Reporte", layout="wide")
 
 # Primer consulta SQL
-consulta1 = """select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio'  and [Fecha inicio] between '01-11-2024' AND '15-11-2024' group by [Tipo Expedientes] """
+consulta1 = """select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios'  and [Fecha inicio] between '15-11-2024' AND '30-11-2024' group by [Tipo Expedientes] """
 cursor.execute(consulta1)
 resultado1 = cursor.fetchall()
 
 # Segundo consulta SQL
-consulta2 = """select [Sector Actual], COUNT(Extracto) AS 'Cant de Exptes' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio'  and [Fecha inicio] between '01-11-2024' AND '15-11-2024' group by  [Sector Actual] """
+consulta2 = """select [Sector Actual], COUNT(Extracto) AS 'Cant de Exptes' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios'  and [Fecha inicio] between '15-11-2024' AND '30-11-2024' group by  [Sector Actual] """
 cursor.execute(consulta2)
 resultado2 = cursor.fetchall()
 
@@ -47,7 +49,7 @@ tiposExptes= df['Tipo Expedientes'].unique()
 # Calcular el total de la columna "Valor"
 total_valor = df["Cantidad"].sum()
 
-st.title("Reporte Situacion Previsional IPS 01-11-2024 al 15-11-2024")
+st.title("Reporte Situacion Previsional IPS 15-11-2024 al 30-11-2024")
 
 
 # Crear gráfico interactivo
@@ -63,7 +65,7 @@ df2 = pd.DataFrame(data2)
 # Crear gráfico interactivo
 fig2 = px.bar(df2, x='Sector Actual', y="Cantidad")
 
-consulta3 = """select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad Solicitados' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio'  and [Fecha inicio] between '01-11-2024' AND '15-11-2024' group by [Tipo Expedientes]"""
+consulta3 = """select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad Solicitados' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios'  and [Fecha inicio] between '15-11-2024' AND '30-11-2024' group by [Tipo Expedientes]"""
 cursor.execute(consulta3)
 resultados3 = cursor.fetchall()
 
@@ -77,30 +79,25 @@ df3 = pd.DataFrame(data3)
 fig3 = px.pie(df3, names='Tipo Expedientes', values="Cantidad", hole=.5)
 
 
-consulta4 = """select [Tipo Expedientes], Extracto, (select top 1 p.[Fecha ingreso] from pases p where p.[Nro. Expedientes]=exp.[Nro. Expedientes] and Sector = 'Div. Despacho' order by [Fecha ingreso] asc),
-Datediff(D, exp.[Fecha inicio], (select top 1 p.[Fecha ingreso] from pases p where p.[Nro. Expedientes]=exp.[Nro. Expedientes] and Sector = 'Div. Despacho' order by [Fecha ingreso] asc))
+consulta4 = """select exp.[Tipo Expedientes], COUNT(Extracto) as 'Cantidades'
 from expedientes exp
-where (select top 1 p.[Fecha ingreso] from pases p where p.[Nro. Expedientes]=exp.[Nro. Expedientes] and Sector = 'Div. Despacho' order by [Fecha ingreso] asc) is not null
-and [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' and [Fecha inicio] between '01-11-2024' AND '15-11-2024'"""
+where not exists (select pases.[Nro. Expedientes] from pases where Sector = 'Div. Despacho' and pases.[Nro. Expedientes]=exp.[Nro. Expedientes])
+and ([Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios') and ([Fecha inicio] between '15-11-2024' AND '30-11-2024') group by exp.[Tipo Expedientes]"""
 cursor.execute(consulta4)
 resultados4 = cursor.fetchall()
 
 data4=[]
 
 for fila in resultados4:
-    data4.append({"Tipo Expedientes": fila[0]})
+    data4.append({"Tipo Expedientes": fila[0], "Cantidades": fila[1]})
 
 df4 = pd.DataFrame(data4)
 
-totales = df4['Tipo Expedientes'].value_counts()
-
-tiposExptes = df4['Tipo Expedientes'].unique()
-
-fig4 = px.bar(x=tiposExptes, y=totales)
+fig4 = px.bar(df4, x='Tipo Expedientes', y='Cantidades')
 
 
 consulta5 = """select CONVERT(DATE,[Fecha inicio]) 'Fecha incio', [Tipo Expedientes], Extracto from expedientes
-where ([Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio') and ([Fecha inicio] between '01-11-2024' AND '15-11-2024')"""
+where ([Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios') and ([Fecha inicio] between '15-11-2024' AND '30-11-2024')"""
 cursor.execute(consulta5)
 resultados5 = cursor.fetchall()
 
@@ -123,6 +120,16 @@ df_pivot = df5.pivot_table(
 )
 
 
+# Graficar la tabla dinámica
+
+# Crear gráfico apilado
+fig5 = px.bar(df_pivot, 
+             x=df_pivot.index,  # Eje X: las fechas
+             y=df_pivot.columns,  # Eje Y: los tipos de expediente
+             title="Solicitudes por Día",
+             labels={'Fecha Inicio': 'Fecha', 'value': 'Cantidad'},
+             height=600, 
+             barmode='stack')  # 'stack' para apilar las barras
 
 
 # Usar st.columns para colocar los gráficos en columnas
@@ -134,11 +141,11 @@ col13, col14, col15 = st.columns(3)
 
 # Mostrar los gráficos en las columnas
 with col1:
-    st.write("Cantidad de Expedientes por Tipo")
-    st.dataframe(df)
+    st.write("Listado Expedientes Solicitados por dia")
+    st.dataframe(df_pivot)
 
 with col2:
-    st.plotly_chart(fig)
+    st.plotly_chart(fig5)
 
 # Mostrar los gráficos en las columnas
 with col4:
@@ -166,7 +173,12 @@ with col11:
 
 # Mostrar los gráficos en las columnas
 with col13:
-    st.write("Listado Expedientes No Resueltos")
-    st.dataframe(df_pivot)
 
-  
+    st.write("Cantidad de Expedientes por Tipo")
+    st.dataframe(df)
+    
+
+with col14:
+    st.plotly_chart(fig)
+    
+ 
