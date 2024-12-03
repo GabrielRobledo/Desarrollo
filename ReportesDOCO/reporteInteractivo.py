@@ -9,6 +9,8 @@ database = 'DoCo'
 username = 'IPSCOR\36548944'
 password = ''
 
+conn =""
+
     # Crear una cadena de conexión utilizando ODBC Driver 18
 conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes; Encrypt=no'
 
