@@ -150,13 +150,6 @@ if resultados6:
 
 df6 = pd.DataFrame(data6)
 
-tipos=df6['Tipo Expedientes'].unique()
-prom= df6['Dias P/Resolver'].mean()
-
-fig6 = px.bar(df6, x=tipos, y=prom)
-
-#promedios = [np.mean(dias[tipo]) for tipo in tipos]
-
 
 # Usar st.columns para colocar los gráficos en columnas
 col1, col2, col3 = st.columns(3)
