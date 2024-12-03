@@ -151,6 +151,9 @@ if resultados6:
 df6 = pd.DataFrame(data6)
 
 tipos=df6['Tipo Expedientes'].unique()
+prom= df6['Dias P/Resolver'].mean()
+
+fig6 = px.bar(df6, x=tipos, y=prom)
 
 #promedios = [np.mean(dias[tipo]) for tipo in tipos]
 
@@ -207,3 +210,5 @@ with col16:
     st.write("Expedientes y sus dias para resolverse")
     st.dataframe(df6) 
 
+with col17:
+    st.plotly_chart(fig6)
