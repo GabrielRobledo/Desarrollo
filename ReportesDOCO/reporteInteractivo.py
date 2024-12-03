@@ -203,5 +203,3 @@ with col16:
     st.write("Expedientes y sus dias para resolverse")
     st.dataframe(df6) 
 
-with col17:
-    st.plotly_chart(fig6)
