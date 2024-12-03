@@ -2,9 +2,6 @@ import pyodbc
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-
 
 # Parámetros de conexión
 server = 'IPSDB-Replica' 
