@@ -12,7 +12,7 @@ password = ''
 
 
 # Crear una cadena de conexión utilizando ODBC Driver 18
-conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes; Encrypt=no'
+conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;Encrypt=no'
 #conn = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER=IPSDB-Replica;DATABASE=DoCo;Trusted_Connection=yes; Encrypt=no')
 conn = pyodbc.connect(conn_str)
     
