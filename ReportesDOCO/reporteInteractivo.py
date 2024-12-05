@@ -11,11 +11,20 @@ username = 'IPSCOR\36548944'
 password = ''
 
 
-# Crear una cadena de conexión utilizando ODBC Driver 18
-conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;Encrypt=no'
-#conn = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER=IPSDB-Replica;DATABASE=DoCo;Trusted_Connection=yes; Encrypt=no')
-conn = pyodbc.connect(conn_str)
+try:
+    # Cadena de conexión
+    conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;Encrypt=no'
     
+    # Intentar conectarse
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    print("Conexión exitosa")
+    
+except pyodbc.Error as e:
+    # Capturar y mostrar detalles completos del error
+    print("Error de conexión:", e)
+    print("Detalles del error:", e.args)
+
 cursor = conn.cursor()
 
 # Establecer configuración de la página y Titulo del Reporte
