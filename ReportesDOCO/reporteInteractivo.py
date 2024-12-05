@@ -25,7 +25,7 @@ except pyodbc.Error as e:
     print("Error de conexión:", e)
     print("Detalles del error:", e.args)
 
-cursor = conn.cursor()
+
 
 # Establecer configuración de la página y Titulo del Reporte
 st.set_page_config(page_title="ReporteIPS", layout="wide")
@@ -48,6 +48,7 @@ if st.button(label='CONSULTAR'):
         
         # Primer consulta SQL Cantidad de Expedientes por tipo
         consulta1 = f"""select [Tipo Expedientes], COUNT(Extracto) as 'Cantidad' from expedientes where [Tipo Expedientes] = 'Jubilación Ordinaria' or  [Tipo Expedientes] = 'Retiro Policial Voluntario' or [Tipo Expedientes] = 'Jubilación por Invalidez' or  [Tipo Expedientes] = 'Retiro Policial por Incapacidad' or [Tipo Expedientes] = 'Retiro Policial Obligatorio' or [Tipo Expedientes] = 'Reconocimiento de Servicios' and [Fecha inicio] between '{DesdeFormat}' AND '{HastaFormat}' group by [Tipo Expedientes] """
+        cursor = conn.cursor()
         cursor.execute(consulta1)
         
         resultado1 = cursor.fetchall()
